@@ -8,7 +8,6 @@ class CrosswordWidget extends StatefulWidget {
   final CrosswordStyle style;
   final Function(Function) onRevealCurrentCellLetter;
   final VoidCallback? onCrosswordCompleted;
-
   final void Function(String completedWord)? onWordCompleted;
 
   CrosswordWidget({
@@ -16,6 +15,7 @@ class CrosswordWidget extends StatefulWidget {
     this.style = const CrosswordStyle(),
     required this.onRevealCurrentCellLetter,
     this.onCrosswordCompleted,
+    this.onWordCompleted
   });
 
   @override
