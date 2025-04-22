@@ -57,14 +57,24 @@ class _CrosswordWidgetState extends State<CrosswordWidget> {
     _focusNode.dispose();
     super.dispose();
   }
-
+  
+  //modificada
   void _generateLayout() {
     CrosswordGenerator generator = CrosswordGenerator();
-    Map<String, dynamic> layout = generator.generateLayout(ensureDynamic(widget.words), false);
+    Map<String, dynamic> layout =
+        generator.generateLayout(ensureDynamic(widget.words), false);
 
     setState(() {
-      _table = List<List<String>>.from(layout['table'].map((row) => List<String>.from(row.map((cell) => cell == '-' ? '-' : ''))));
+      _table = List<List<String>>.from(
+        layout['table'].map((row) => List<String>.from(
+            row.map((cell) => cell == '-' ? '-' : ''))),
+      );
       _words = layout['result'];
+      // Reiniciar el estado completed de cada palabra al generar
+      for (var w in _words) {
+        w['completed'] = false;
+      }
+
       _selectedRow = -1;
       _selectedCol = -1;
       _isHorizontal = true;
@@ -307,49 +317,47 @@ class _CrosswordWidgetState extends State<CrosswordWidget> {
       ),
     );
   }
-
+  
+  //modificada
   void _validateWord() {
     for (var word in _words) {
+      bool wasCompleted = word['completed'] == true;
       bool isCorrect = true;
+      int y = word['starty'] - 1;
+      int x = word['startx'] - 1;
       if (word['orientation'] == 'across') {
-        int startY = word['starty'] - 1;
-        int startX = word['startx'] - 1;
         for (int k = 0; k < word['answer'].length; k++) {
-          if (_table[startY][startX + k].toLowerCase() != word['answer'][k]) {
+          if (_table[y][x + k].toLowerCase() != word['answer'][k]) {
             isCorrect = false;
             break;
           }
         }
         if (isCorrect) {
           for (int k = 0; k < word['answer'].length; k++) {
-            _table[startY][startX + k] = word['answer'][k].toUpperCase();
+            _table[y][x + k] = word['answer'][k].toUpperCase();
           }
-          word['completed'] = true;
         }
-      } else if (word['orientation'] == 'down') {
-        int startY = word['starty'] - 1;
-        int startX = word['startx'] - 1;
+      } else {
         for (int k = 0; k < word['answer'].length; k++) {
-          if (_table[startY + k][startX].toLowerCase() != word['answer'][k]) {
+          if (_table[y + k][x].toLowerCase() != word['answer'][k]) {
             isCorrect = false;
             break;
           }
         }
         if (isCorrect) {
           for (int k = 0; k < word['answer'].length; k++) {
-            _table[startY + k][startX] = word['answer'][k].toUpperCase();
+            _table[y + k][x] = word['answer'][k].toUpperCase();
           }
-          word['completed'] = true;
         }
       }
-      if (isCorrect && word['completed'] != true) {
+      if (isCorrect && !wasCompleted) {
         word['completed'] = true;
         widget.onWordCompleted?.call(word['answer'] as String);
       }
     }
     if (_areAllWordsCompleted()) {
       if (widget.onCrosswordCompleted != null) {
-        widget.onCrosswordCompleted!(); // Call the completion callback
+        widget.onCrosswordCompleted!();
       } else {
         _showCongratsDialog();
       }
