@@ -342,7 +342,7 @@ class _CrosswordWidgetState extends State<CrosswordWidget> {
           word['completed'] = true;
         }
       }
-      if (isCorrect && !wasCompleted) {
+      if (isCorrect && word['completed'] != true) {
         word['completed'] = true;
         widget.onWordCompleted?.call(word['answer'] as String);
       }
